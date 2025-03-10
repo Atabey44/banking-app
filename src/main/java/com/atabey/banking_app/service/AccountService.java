@@ -2,6 +2,8 @@ package com.atabey.banking_app.service;
 
 import com.atabey.banking_app.dto.AccountDto;
 import com.atabey.banking_app.dto.AccountDtoConverter;
+import com.atabey.banking_app.dto.TransferFundDto;
+import com.atabey.banking_app.exception.AccountException;
 import com.atabey.banking_app.model.Account;
 import com.atabey.banking_app.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,14 +35,14 @@ public class AccountService {
 
     public AccountDto getByIdAccount(Long id) {
         Account account = accountRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Account could not find by id: " + id));
+                .orElseThrow(()-> new AccountException("Account could not find by id: " + id));
 
         return accountDtoConverter.convert(account);
     }
 
     public AccountDto updateAccount(Long id, AccountDto accountDto) {
         Account account = accountRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Account could not find by id: " + id));
+                .orElseThrow(()-> new AccountException("Account could not find by id: " + id));
 
         account.setAccountHolderName(accountDto.getAccountHolderNameDto());
         account.setBalance(accountDto.getBalanceDto());
@@ -54,7 +56,7 @@ public class AccountService {
 
     public AccountDto deposit(Long id, double amount) {
         Account account = accountRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Account could not find by id: " + id));
+                .orElseThrow(()-> new AccountException("Account could not find by id: " + id));
 
         double total = account.getBalance() + amount;
         account.setBalance(total);
@@ -64,7 +66,7 @@ public class AccountService {
     public AccountDto withdraw(Long id, double amount) {
 
         Account account = accountRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Account could not find by id: " + id));
+                .orElseThrow(()-> new AccountException("Account could not find by id: " + id));
 
         if (account.getBalance() - amount < 0){
             throw new RuntimeException("Insufficient balance");
@@ -75,5 +77,20 @@ public class AccountService {
         return accountDtoConverter.convert( accountRepository.save(account));
 
     }
+
+    public void transferFunds(TransferFundDto transferFundDto){
+        Account fromAccount = accountRepository.findById(transferFundDto.fromAccountId())
+                .orElseThrow(()-> new AccountException("Account could not find by id:"));
+
+        Account toAccount = accountRepository.findById(transferFundDto.toAccountId())
+                .orElseThrow(()-> new AccountException("Account could not find by id:"));
+
+    fromAccount.setBalance(fromAccount.getBalance()-transferFundDto.amount());
+    toAccount.setBalance(toAccount.getBalance()+ transferFundDto.amount());
+    accountRepository.save(fromAccount);
+    accountRepository.save(toAccount);
+
+    }
+
 
 }

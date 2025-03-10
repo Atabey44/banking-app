@@ -1,6 +1,7 @@
 package com.atabey.banking_app.controller;
 
 import com.atabey.banking_app.dto.AccountDto;
+import com.atabey.banking_app.dto.TransferFundDto;
 import com.atabey.banking_app.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -58,6 +59,13 @@ public class AccountController {
     public ResponseEntity<AccountDto> withdraw (
             @PathVariable Long id, @RequestBody double amount){
         return ResponseEntity.ok(accountService.withdraw(id,amount));
+    }
+
+    @PostMapping("/transfer")
+    public ResponseEntity<String> transferFund(@RequestBody TransferFundDto transferFundDto){
+        accountService.transferFunds(transferFundDto);
+
+        return ResponseEntity.ok("Transfer Successfull");
     }
 
 
