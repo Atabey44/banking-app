@@ -5,10 +5,13 @@ import com.atabey.banking_app.dto.AccountDtoConverter;
 import com.atabey.banking_app.dto.TransferFundDto;
 import com.atabey.banking_app.exception.AccountException;
 import com.atabey.banking_app.model.Account;
+import com.atabey.banking_app.model.Transaction;
 import com.atabey.banking_app.repository.AccountRepository;
+import com.atabey.banking_app.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -17,6 +20,9 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final AccountDtoConverter accountDtoConverter;
+    private final TransactionRepository transactionRepository;
+
+    private static  final String TRANSACTION_TYPE_DEPOSIT="deposit";
 
     public AccountDto createAccount(AccountDto accountDto) {
         Account account = new Account();
@@ -54,12 +60,20 @@ public class AccountService {
         accountRepository.deleteById(id);
     }
 
+
     public AccountDto deposit(Long id, double amount) {
         Account account = accountRepository.findById(id)
                 .orElseThrow(()-> new AccountException("Account could not find by id: " + id));
 
         double total = account.getBalance() + amount;
         account.setBalance(total);
+
+        Transaction transaction = new Transaction();
+        transaction.setAccountId(id);
+        transaction.setAmount(amount);
+        transaction.setTransactionType("DEPOSIT");
+        transaction.setTimestamp(LocalDateTime.now());
+        transactionRepository.save(transaction);
         return accountDtoConverter.convert(accountRepository.save(account));
     }
 

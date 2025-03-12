@@ -19,7 +19,7 @@ public class AccountController {
 
 
     @PostMapping("/createAccount")
-    public ResponseEntity<AccountDto> creaateAccount(@RequestBody AccountDto accountDto) {
+    public ResponseEntity<AccountDto> createAccount(@RequestBody AccountDto accountDto) {
 
         return new ResponseEntity<>
                 (accountService.createAccount(accountDto)
@@ -47,7 +47,7 @@ public class AccountController {
         return ResponseEntity.ok("Account is deleted Successfully");
     }
 
-    @PutMapping("/{id}/deposit")
+    @PutMapping("/deposit/{id}")
     public ResponseEntity<AccountDto> deposit(@PathVariable Long id,
                                               @RequestBody double amount){
 
